@@ -1,5 +1,18 @@
-export default function NewAlertForm({action}: { action: (formData: FormData) => void }) {
+import axios from "axios";
+import {fetchCurrencies} from "@/app/actions";
 
+export default function NewAlertForm({action}: { action: (formData: FormData) => void }) {
+    const renderOptions = async () => {
+        const currencies = await fetchCurrencies();
+        if (currencies && currencies.length) {
+            return currencies.map((currency: any) => {
+                return <option key={currency._id}
+                               value={currency.pair}>{currency.displayName}</option>;
+            });
+        } else {
+            return <option value="BTCUSDT">BTCUSDT</option>;
+        }
+    }
     return (
         <form className="max-w-md mx-auto" action={action}>
             <div className="relative z-0 w-full mb-5 group">
@@ -7,9 +20,7 @@ export default function NewAlertForm({action}: { action: (formData: FormData) =>
                         className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                         required>
                     <optgroup label="Popular">
-                        <option value="btcusdt">Bitcoin</option>
-                        <option value="ethusdt">Ethereum</option>
-                        <option value="dogeusdt">Dogecoin</option>
+                        {renderOptions()}
                     </optgroup>
                 </select>
                 <label htmlFor="crypto_id"
@@ -30,7 +41,11 @@ export default function NewAlertForm({action}: { action: (formData: FormData) =>
                         Action</label>
                 </div>
                 <div className="relative z-0 w-full mb-5 group">
-                    <input type="number" name="price_value" id="price_value"
+                    <input type="number"
+                           min={0}
+                           max={100000}
+                           step=".01"
+                           name="price_value" id="price_value"
                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                            placeholder="" required/>
                     <label htmlFor="price_value"
